@@ -74,16 +74,22 @@ class BlurViewModel(application: Application) : ViewModel() {
 
             continuation = continuation.then(blurBuilder.build())
         }
+        // Put this inside the applyBlur() function, above the save work request.
+        // Create charging constraint
+        val constraints = Constraints.Builder()
+            .setRequiresCharging(true)
+            .build()
 
         // Add WorkRequest to save the image to the filesystem
         val save = OneTimeWorkRequestBuilder<SaveImageToFileWorker>()
-            .addTag(TAG_OUTPUT) // <-- ADD THIS
+            .setConstraints(constraints)
+            .addTag(TAG_OUTPUT)
             .build()
-
         continuation = continuation.then(save)
 
         // Actually start the work
         continuation.enqueue()
+
     }
 
     internal fun cancelWork() {
